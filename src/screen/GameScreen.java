@@ -70,6 +70,10 @@ public class GameScreen extends Screen {
 	private boolean levelFinished;
 	/** Checks if a bonus life is received. */
 	private boolean bonusLife;
+	/** Check if the game is paused */
+	private  boolean isPause;
+	/** Check if the game will restart */
+	private boolean isRestart;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -136,6 +140,7 @@ public class GameScreen extends Screen {
 		super.run();
 
 		this.score += LIFE_SCORE * (this.lives - 1);
+		this.isPause = false;
 		this.logger.info("Screen cleared with a score of " + this.score);
 
 		return this.returnCode;
@@ -189,6 +194,33 @@ public class GameScreen extends Screen {
 				this.enemyShipSpecial = null;
 				this.logger.info("The special ship has escaped");
 			}
+			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
+					|| inputManager.isKeyDown(KeyEvent.VK_P))
+				isPause = true;
+			while (isPause) {
+				if (inputManager.isKeyDown(KeyEvent.VK_LEFT)
+						|| inputManager.isKeyDown(KeyEvent.VK_A)) {
+					previousMenuItem();
+				}
+				if (inputManager.isKeyDown(KeyEvent.VK_RIGHT)
+						|| inputManager.isKeyDown(KeyEvent.VK_D)) {
+					nextMenuItem();
+				}
+				if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+					try {
+						if (this.returnCode == 0) {
+							this.isPause = false;
+						}
+						else if (this.returnCode == 1){
+							this.lives = -1;
+							this.isPause = false;
+							this.isRunning = false;
+						}
+						Thread.sleep(100);
+					} catch (InterruptedException e) { }
+				}
+				drawPause(this.returnCode);
+			}
 
 			this.ship.update();
 			this.enemyShipFormation.update();
@@ -207,7 +239,29 @@ public class GameScreen extends Screen {
 
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
 			this.isRunning = false;
+	}
+	/**
+	 * Shifts the focus to the next menu item.
+	 */
+	private void nextMenuItem() {
+		this.returnCode = 1;
+	}
 
+	/**
+	 * Shifts the focus to the previous menu item.
+	 */
+	private void previousMenuItem() {
+		this.returnCode = 0;
+	}
+
+	private void drawPause(final int option) {
+		drawManager.drawPause(this, INPUT_DELAY, this.isPause,
+				option, this.level, this.score, this.lives);
+		drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+				/ 4);
+		drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+				/ 4);
+		drawManager.completeDrawing(this);
 	}
 
 	/**
@@ -338,4 +392,6 @@ public class GameScreen extends Screen {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
 	}
+
+
 }

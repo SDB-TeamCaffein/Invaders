@@ -8,11 +8,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import screen.GameScreen;
-import screen.HighScoreScreen;
-import screen.ScoreScreen;
-import screen.Screen;
-import screen.TitleScreen;
+import screen.*;
 
 /**
  * Implements core game logic.
@@ -134,7 +130,7 @@ public final class Core {
 					boolean bonusLife = gameState.getLevel()
 							% EXTRA_LIFE_FRECUENCY == 0
 							&& gameState.getLivesRemaining() < MAX_LIVES;
-					
+
 					currentScreen = new GameScreen(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
 							bonusLife, width, height, FPS);
@@ -150,9 +146,15 @@ public final class Core {
 							gameState.getLivesRemaining(),
 							gameState.getBulletsShot(),
 							gameState.getShipsDestroyed());
-
 				} while (gameState.getLivesRemaining() > 0
 						&& gameState.getLevel() <= NUM_LEVELS);
+
+				if (gameState.getLivesRemaining() == -1) {
+					currentScreen = new TitleScreen(width, height, FPS);
+					returnCode = frame.setScreen(currentScreen);
+					LOGGER.info("Closing score screen.");
+					break;
+				}
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " score screen at " + FPS + " fps, with a score of "
@@ -165,6 +167,64 @@ public final class Core {
 				LOGGER.info("Closing score screen.");
 				break;
 			case 3:
+				do {
+					currentScreen = new SettingScreen(width, height, FPS);
+					LOGGER.info("Starting " + WIDTH + "x" + HEIGHT +
+							" setting screen at " + FPS + "fps.");
+					returnCode = frame.setScreen(currentScreen);
+					LOGGER.info("Closing setting screen.");
+					switch (returnCode) {
+						case 2:
+							// window mode setting
+//							currentScreen = new WindowSettingScreen(width, height, FPS);
+//							LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
+//									+ " window setting screen at " + FPS + " fps.");
+//							returnCode = frame.setScreen(currentScreen);
+//							LOGGER.info(frame.setScreen(currentScreen));
+							break;
+						case 3:
+							// difficulty setting
+							currentScreen = new DifficultyScreen(width, height, FPS);
+							LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
+									+ " difficulty screen at " + FPS + " fps.");
+							returnCode = frame.setScreen(currentScreen);
+							LOGGER.info("Difficulty screen.");
+							switch (returnCode) {
+								case 5:
+									LOGGER.info("NORMAL MODE");
+									returnCode = 3;
+									break;
+								case 6:
+									LOGGER.info("HARD MODE");
+									returnCode = 3;
+									break;
+								case 7:
+									LOGGER.info("EXPERT MODE");
+									returnCode = 3;
+									break;
+								default:
+									break;
+							}
+							break;
+						case 4:
+							// sound volume setting
+							break;
+						case 0:
+							returnCode = 1;
+							break;
+						default:
+							break;
+					}
+
+				} while (returnCode != 1);
+				// Game Setting
+				currentScreen = new TitleScreen(width, height, FPS);
+				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT +
+						" Title at " + FPS + "fps.");
+				returnCode = frame.setScreen(currentScreen);
+				LOGGER.info("Closing Title screen.");
+				break;
+			case 4:
 				// High scores.
 				currentScreen = new HighScoreScreen(width, height, FPS);
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
