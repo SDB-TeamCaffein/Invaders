@@ -114,8 +114,8 @@ public final class DrawManager {
 			logger.info("Finished loading the sprites.");
 
 			// Font loading.
-			fontRegular = fileManager.loadFont(14f);
-			fontBig = fileManager.loadFont(24f);
+			fontRegular = fileManager.loadFont(Core.regularFontSize);
+			fontBig = fileManager.loadFont(Core.regularBigFontSize);
 			logger.info("Finished loading the fonts.");
 
 		} catch (IOException e) {
@@ -132,6 +132,8 @@ public final class DrawManager {
 	 */
 	protected static DrawManager getInstance() {
 		if (instance == null)
+			Core.regularFontSize = 14f*Core.sizingNum;
+			Core.regularBigFontSize = 24f*Core.sizingNum;
 			instance = new DrawManager();
 		return instance;
 	}
@@ -236,6 +238,7 @@ public final class DrawManager {
 		boolean[][] image = spriteMap.get(entity.getSpriteType());
 
 		backBufferGraphics.setColor(entity.getColor());
+
 		for (int i = 0; i < image.length; i++)
 			for (int j = 0; j < image[i].length; j++)
 				if (image[i][j])
