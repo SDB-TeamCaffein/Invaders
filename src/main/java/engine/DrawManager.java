@@ -84,8 +84,16 @@ public final class DrawManager {
 
 	/**
 	 * Private constructor.
+	 *
+	 *
+	 *
+	 * -> private to protected
+	 * becuase private constructor can not be applied to Testing code about CheckOutScreen.
+	 *
+	 *
+	 *
 	 */
-	private DrawManager() {
+	protected DrawManager() {
 		fileManager = Core.getFileManager();
 		logger = Core.getLogger();
 		logger.info("Started loading resources.");
